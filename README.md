@@ -1,7 +1,11 @@
 <img alt="GoStack" src="https://storage.googleapis.com/golden-wind/bootcamp-gostack/header-desafios-new.png" />
 
 <h3 align="center">
-  Desafio 11: GoRestaurant Mobile
+  Desafio 11: GoRestaurant Mobile - Resolvido ✔️
+</h3>
+
+<h3 align="center">
+  ⚠️Este repositório contém a resolução, para resolver por conta própria: <a href="#template-da-aplicação">Template da aplicação</a>⚠️
 </h3>
 
 <blockquote align="center">“Nada no mundo supera a persistência.”!</blockquote>
