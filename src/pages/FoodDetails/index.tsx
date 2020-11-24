@@ -73,15 +73,14 @@ const FoodDetails: React.FC = () => {
 
   useEffect(() => {
     async function loadFood(): Promise<void> {
-      const response = await api.get(`/foods/${routeParams.id}`);
+      const { id } = routeParams;
 
-      setFood({
-        ...response.data,
-        formattedPrice: formatValue(response.data.price),
-      });
+      const response = await api.get<Food>(`foods/${id}`);
+
+      setFood(response.data);
 
       setExtras(
-        response.data.extras.map((extra: Omit<Extra, 'quantity'>) => ({
+        response.data.extras.map(extra => ({
           ...extra,
           quantity: 0,
         })),
@@ -92,24 +91,27 @@ const FoodDetails: React.FC = () => {
   }, [routeParams]);
 
   function handleIncrementExtra(id: number): void {
-    setExtras(
-      extras.map(extra =>
-        extra.id === id ? { ...extra, quantity: extra.quantity + 1 } : extra,
-      ),
-    );
+    const updatedExtras = extras.map(extra => {
+      return extra.id === id
+        ? { ...extra, quantity: extra.quantity + 1 }
+        : extra;
+    });
+
+    setExtras(updatedExtras);
   }
 
   function handleDecrementExtra(id: number): void {
     const findExtra = extras.find(extra => extra.id === id);
 
-    if (!findExtra) return;
-    if (findExtra.quantity === 0) return;
+    if (findExtra && findExtra.quantity >= 1) {
+      const updatedExtras = extras.map(extra => {
+        return extra.id === id
+          ? { ...extra, quantity: extra.quantity - 1 }
+          : extra;
+      });
 
-    setExtras(
-      extras.map(extra =>
-        extra.id === id ? { ...extra, quantity: extra.quantity - 1 } : extra,
-      ),
-    );
+      setExtras(updatedExtras);
+    }
   }
 
   function handleIncrementFood(): void {
@@ -117,43 +119,56 @@ const FoodDetails: React.FC = () => {
   }
 
   function handleDecrementFood(): void {
-    if (foodQuantity === 1) return;
-
-    setFoodQuantity(foodQuantity - 1);
+    if (foodQuantity > 1) setFoodQuantity(foodQuantity - 1);
   }
 
-  const toggleFavorite = useCallback(() => {
-    if (isFavorite) {
-      api.delete(`/favorites/${food.id}`);
+  const toggleFavorite = useCallback(async () => {
+    if (!isFavorite) {
+      await api.post('/favorites', food);
     } else {
-      api.post(`favorites`, food);
+      await api.delete('/favorites', {
+        params: {
+          id: food.id,
+        },
+      });
     }
 
     setIsFavorite(!isFavorite);
   }, [isFavorite, food]);
 
   const cartTotal = useMemo(() => {
-    const extraTotal = extras.reduce((accumulator, extra) => {
-      return accumulator + extra.quantity * extra.value;
-    }, 0);
+    const extrasTotal = extras.reduce(
+      (accumulator, extra) => accumulator + extra.value * extra.quantity,
+      0,
+    );
 
-    const foodTotal = food.price;
+    const totalValue =
+      (Number(extrasTotal) + Number(food.price)) * foodQuantity;
 
-    return formatValue((extraTotal + foodTotal) * foodQuantity);
+    return totalValue;
   }, [extras, food, foodQuantity]);
 
   async function handleFinishOrder(): Promise<void> {
-    // Finish the order and save on the API
+    const order = {
+      ...food,
+      product_id: food.id,
+      extras,
+      price: cartTotal,
+    };
+
+    delete order.id;
+
+    await api.post('/orders', order);
   }
 
-  // Calculate the correct icon name
   const favoriteIconName = useMemo(
     () => (isFavorite ? 'favorite' : 'favorite-border'),
     [isFavorite],
   );
 
+  const formattedCartTotal = useMemo(() => formatValue(cartTotal), [cartTotal]);
+
   useLayoutEffect(() => {
-    // Add the favorite icon on the right of the header bar
     navigation.setOptions({
       headerRight: () => (
         <MaterialIcon
@@ -218,7 +233,7 @@ const FoodDetails: React.FC = () => {
         <TotalContainer>
           <Title>Total do pedido</Title>
           <PriceButtonContainer>
-            <TotalPrice testID="cart-total">{cartTotal}</TotalPrice>
+            <TotalPrice testID="cart-total">{formattedCartTotal}</TotalPrice>
             <QuantityContainer>
               <Icon
                 size={15}
