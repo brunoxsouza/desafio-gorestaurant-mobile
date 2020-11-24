@@ -63,3 +63,5 @@ buck-out/
 /ios/Pods/
 
 
+# Graphics Interchange Format
+*.gif
