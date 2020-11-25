@@ -1,3 +1,27 @@
+## Resultado:
+
+<p align="center">
+  <img alt="Resultado" src="https://github.com/brunoxsouza/desafio-gorestaurant-mobile/blob/master/Desafio11React-Native.gif">
+</p>
+
+## Para executar este projeto:
+Após clonar o projeto, rode um `yarn` no terminal para instalar todas as dependências.
+
+Esta aplicação utiliza uma fake api, para executar este banco, rode o comando abaixo:
+```js
+  yarn json-server server.json -p 3333
+```
+
+Após isso rode `yarn start` para iniciar o metro bundler e `yarn android` ou `yarn ios` com o emulador aberto para que possa instalar a aplicação.
+
+**PS:** Esta aplicação utiliza a lib do axios, no arquivo `api.js` você deverá substituir o endereço para o emulador/simulador que você estiver utilizando:
+
+**Genymotion:              http://10.0.3.2:3333/**
+
+**Emulador Android Studio: http://10.0.2.2:3333/**
+
+**Simulador IOS:           http://localhost:3333/**
+
 <img alt="GoStack" src="https://storage.googleapis.com/golden-wind/bootcamp-gostack/header-desafios-new.png" />
 
 <h3 align="center">
